@@ -10,7 +10,6 @@ import java.util.Properties;
 
 import javax.vecmath.Matrix4f;
 
-import projection.twocamera.TwoCameraSphericalMaxProjection;
 import projection.util.TransformIO;
 
 public class Configuration {
@@ -162,9 +161,14 @@ public class Configuration {
 					0.0f, 0.0f, 0.0f, 1.0f);
 			for(int cam = 0; cam < 2; cam++) {
 				for(int ill = 0; ill < 2; ill++, i++) {
-					angleNames[i] = TwoCameraSphericalMaxProjection.getAngleName(a, 45, cam, ill);
-					System.out.println("angle " + a + " cam " + cam + " ill " + ill + ": " + angleNames[i]);
-					angles[i] = TwoCameraSphericalMaxProjection.getAngle(cam, ill);
+					int angle = cam == 0 ? 135 : 45;
+					if(ill == 1)
+						angle = -angle;
+					angles[i] = angle;
+					if(angle < 0)
+						angle = 360 + angle;
+					angle += a * 45;
+					angleNames[i] = String.format("%04d", angle);
 					transformations[i] = trans;
 				}
 			}
