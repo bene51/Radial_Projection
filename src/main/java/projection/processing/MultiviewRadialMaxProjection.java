@@ -18,7 +18,7 @@ public class MultiviewRadialMaxProjection {
 	protected final int nChannels;
 
 	protected SphericalMaxProjection[] smp;
-	protected ProjectSMP[] projectors;
+	protected MaximumProjector[] projectors;
 
 
 	public MultiviewRadialMaxProjection(String outputdir,
@@ -143,7 +143,7 @@ public class MultiviewRadialMaxProjection {
 		System.out.println("... took " + (end - start) + " ms: " + sphere.nVertices + " vtcs");
 
 		smp = new SphericalMaxProjection[conf.nAngles];
-		projectors = new ProjectSMP[conf.nAngles];
+		projectors = new MaximumProjector[conf.nAngles];
 
 		for(int a = 0; a < conf.nAngles; a++) {
 			Matrix4f transform = conf.transformations[a];
@@ -153,7 +153,7 @@ public class MultiviewRadialMaxProjection {
 
 			System.out.println("Create SMP");
 			smp[a] = new SphericalMaxProjection(sphere, center, (float)conf.radius, transform, false);
-			projectors[a] = new ProjectSMP(smp[a]);
+			projectors[a] = new MaximumProjector(smp[a]);
 			System.out.println("prepare for projection");
 			projectors[a].prepareForProjection(
 				conf.w, conf.h, conf.d,

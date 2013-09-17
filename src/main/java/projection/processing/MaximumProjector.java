@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
-public class ProjectSMP {
+public class MaximumProjector {
 	// These fields are set in prepareForProjection();
 	private int[][] lutxy;
 	private int[][] luti;
@@ -28,7 +28,7 @@ public class ProjectSMP {
 
 	private final SphericalMaxProjection smp;
 
-	public ProjectSMP(SphericalMaxProjection smp) {
+	public MaximumProjector(SphericalMaxProjection smp) {
 		this.smp = smp;
 	}
 
@@ -121,7 +121,7 @@ public class ProjectSMP {
 						if(weight != 0)
 							validVertexIndices.add(vIndex);
 					}
-					synchronized(ProjectSMP.this) {
+					synchronized(MaximumProjector.this) {
 						allValidVertexIndices.addAll(validVertexIndices);
 					}
 				}
