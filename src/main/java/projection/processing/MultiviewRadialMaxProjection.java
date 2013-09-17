@@ -19,7 +19,7 @@ public class MultiviewRadialMaxProjection {
 
 	protected SphericalMaxProjection[] smp;
 	protected ProjectSMP[] projectors;
-	protected final short[][][] maxima;
+
 
 	public MultiviewRadialMaxProjection(String outputdir,
 			Configuration conf,
@@ -34,7 +34,7 @@ public class MultiviewRadialMaxProjection {
 		try {
 			// initialize the maximum projections
 			initSphericalMaximumProjection();
-			this.maxima = new short[conf.nAngles][conf.nLayers][smp[0].getSphere().nVertices];
+			// this.maxima = new short[conf.nAngles][conf.nLayers][smp[0].getSphere().nVertices];
 		} catch(Exception e) {
 			throw new RuntimeException("Cannot load transformations.", e);
 		}
@@ -90,11 +90,10 @@ public class MultiviewRadialMaxProjection {
 
 		// Start of stack
 		if(z == 0)
-			for(int s = 0; s < conf.nLayers; s++)
-				smp[aIndex].resetMaxima(maxima[aIndex][s]);
+			projectors[aIndex].resetMaxima();
 
 		// do the projection
-		projectors[aIndex].projectPlaneMultilayer(z, ip, maxima[aIndex]);
+		projectors[aIndex].projectPlaneMultilayer(z, ip);
 
 		// Not end of stack: nothing else to do
 		if(z < conf.d - 1)
@@ -106,7 +105,7 @@ public class MultiviewRadialMaxProjection {
 			File vpath = new File(outputdir, "channel" + channel);
 			vpath = new File(vpath, filename);
 			try {
-				projectors[aIndex].saveVertices(maxima[aIndex][l], vpath);
+				projectors[aIndex].saveVertices(l, vpath);
 			} catch(Exception e) {
 				throw new RuntimeException("Cannot save " + vpath);
 			}
