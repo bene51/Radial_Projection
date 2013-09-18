@@ -15,25 +15,27 @@ import java.util.concurrent.TimeUnit;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
-public class ProjectSMP {
+public class MaximumProjector {
 	// These fields are set in prepareForProjection();
 	private int[][] lutxy;
 	private int[][] luti;
 	private int[][] luts;
+
+	private short[][] maxima;
 
 	private int[] usedVertexIndices;
 	private byte[] forSavingVertices;
 
 	private final SphericalMaxProjection smp;
 
-	public ProjectSMP(SphericalMaxProjection smp) {
+	public MaximumProjector(SphericalMaxProjection smp) {
 		this.smp = smp;
 	}
 
 	/*
 	 * z starts with 0;
 	 */
-	public void projectPlaneMultilayer(int z, short[] ip, short[][] maxima) {
+	public void projectPlaneMultilayer(int z, short[] ip) {
 		for(int i = 0; i < luti[z].length; i++) {
 			float v = ip[lutxy[z][i]] & 0xffff;
 			if(v > (maxima[luts[z][i]][luti[z][i]] & 0xffff))
@@ -41,10 +43,15 @@ public class ProjectSMP {
 		}
 	}
 
-	public void saveVertices(short[] maxima, File file) throws IOException {
+	public void resetMaxima() {
+		for(int s = 0; s < maxima.length; s++)
+			for(int v = 0; v < maxima[s].length; v++)
+				maxima[s][v] = 0;
+	}
+
+	public void saveVertices(int l, File file) throws IOException {
 		int i = 0;
-		for(int vIdx : usedVertexIndices) {
-			short pixel = maxima[vIdx];
+		for(short pixel : maxima[l]) {
 			forSavingVertices[i++] = (byte) pixel;
 			forSavingVertices[i++] = (byte) (pixel >> 8);
 		}
@@ -116,7 +123,7 @@ public class ProjectSMP {
 						if(weight != 0)
 							validVertexIndices.add(vIndex);
 					}
-					synchronized(ProjectSMP.this) {
+					synchronized(MaximumProjector.this) {
 						allValidVertexIndices.addAll(validVertexIndices);
 					}
 				}
@@ -182,7 +189,7 @@ public class ProjectSMP {
 
 								// only add it if the pixel is inside the image
 								if(x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d)
-									correspondences[z][currentProc].add(y * w + x, s, vIndex);
+									correspondences[z][currentProc].add(y * w + x, s, vvi);
 							}
 						}
 					}
@@ -209,6 +216,8 @@ public class ProjectSMP {
 		}
 
 		long totalEnd = System.currentTimeMillis();
+
+		maxima = new short[nLayers][usedVertexIndices.length];
 		System.out.println("Overall time " + (totalEnd - totalStart) + " ms");
 	}
 }
