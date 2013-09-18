@@ -48,9 +48,11 @@ public class ProjectSMP {
 			forSavingVertices[i++] = (byte) pixel;
 			forSavingVertices[i++] = (byte) (pixel >> 8);
 		}
-		FileOutputStream fos = new FileOutputStream(file);
+		File tmp = new File(file.getAbsolutePath() + ".part");
+		FileOutputStream fos = new FileOutputStream(tmp);
 		fos.write(forSavingVertices);
 		fos.close();
+		tmp.renameTo(file);
 	}
 
 	public static void loadVertices(File file, int[] usedVertexIndices, short[] maxima) throws IOException {
