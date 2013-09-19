@@ -59,6 +59,8 @@ public class MaximumProjector {
 		FileOutputStream fos = new FileOutputStream(tmp);
 		fos.write(forSavingVertices);
 		fos.close();
+		if(file.exists())
+			file.delete();
 		tmp.renameTo(file);
 	}
 
