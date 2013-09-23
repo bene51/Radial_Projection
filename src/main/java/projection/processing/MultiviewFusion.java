@@ -392,7 +392,15 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 
 		@Override
 		public File getFile(int indexInFolderArray, String file) {
-			return new File(folders[indexInFolderArray], file);
+			File f = new File(folders[indexInFolderArray], file);
+			while(!f.exists()) {
+				try {
+					Thread.sleep(5000);
+				} catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			return f;
 		}
 	}
 }
