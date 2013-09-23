@@ -2,6 +2,7 @@ package projection.processing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import javax.vecmath.Point2f;
 import javax.vecmath.Point3f;
@@ -25,28 +26,37 @@ public class FindMaxima {
 	public FindMaxima(SphericalMaxProjection smp) {
 		this.smp = smp;
 		int[] faces = smp.getSphere().faces;
-		neighbors = new int[smp.getSphere().nVertices][6];
-		int[] nNeighbors = new int[smp.getSphere().nVertices];
+		this.neighbors = calculateNeighbors(faces, smp.getSphere().nVertices);
+	}
+
+	@SuppressWarnings("unchecked")
+	private int[][] calculateNeighbors(int[] faces, int nVertices) {
+		HashSet<Integer>[] set = new HashSet[nVertices];
+		for(int i = 0; i < nVertices; i++)
+			set[i] = new HashSet<Integer>();
+
 		for(int i = 0; i < faces.length; i += 3) {
-			int v1 = faces[i];
-			int v2 = faces[i + 1];
-			int v3 = faces[i + 2];
+			int f1 = faces[i];
+			int f2 = faces[i + 1];
+			int f3 = faces[i + 2];
+			set[f1].add(f2);
+			set[f1].add(f3);
 
-			neighbors[v1][nNeighbors[v1]++] = v2;
-			neighbors[v1][nNeighbors[v1]++] = v3;
-			neighbors[v2][nNeighbors[v2]++] = v1;
-			neighbors[v2][nNeighbors[v2]++] = v3;
-			neighbors[v3][nNeighbors[v3]++] = v1;
-			neighbors[v3][nNeighbors[v3]++] = v2;
+			set[f2].add(f1);
+			set[f2].add(f3);
+
+			set[f3].add(f1);
+			set[f3].add(f2);
 		}
 
-		for(int i = 0; i < neighbors.length; i++) {
-			if(neighbors[i].length != nNeighbors[i]) {
-				int[] tmp = new int[nNeighbors[i]];
-				System.arraycopy(neighbors[i], 0, tmp, 0, nNeighbors[i]);
-				neighbors[i] = tmp;
-			}
+		int[][] neigh = new int[nVertices][];
+		for(int i = 0; i < nVertices; i++) {
+			neigh[i] = new int[set[i].size()];
+			int n = 0;
+			for(int neighbor : set[i])
+				neigh[i][n++] = neighbor;
 		}
+		return neigh;
 	}
 
 	public ArrayList<Point3f> findMaxima(short[] values, double tolerance) {
