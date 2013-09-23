@@ -132,7 +132,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			in.close();
 
 			f = new File(folder, angleFiles[aIndex].replace(".mat", ".indices"));
-			usedVertexIndices[aIndex] = ProjectSMP.loadVertexIndices(f);
+			usedVertexIndices[aIndex] = MaximumProjector.loadVertexIndices(f);
 		}
 
 		if(saveOutput) {
@@ -205,7 +205,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 
 		for(int aIndex = 0; aIndex < nAngles; aIndex++) {
 			File f = new File(folders[aIndex], angleFiles.get(aIndex).getName().replace(".mat", ".indices"));
-			usedVertexIndices[aIndex] = ProjectSMP.loadVertexIndices(f);
+			usedVertexIndices[aIndex] = MaximumProjector.loadVertexIndices(f);
 		}
 
 		if(saveOutput) {
@@ -332,7 +332,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			for(int l = 0; l < nLayers; l++) {
 				// m[a][l] = SphericalMaxProjection.loadShortData(inputdir.getFile(a, getFile(tp, a, l)).getAbsolutePath(),  nVertices);
 				File f = inputdir.getFile(a, getFile(tp, a, l));
-				ProjectSMP.loadVertices(f, usedVertexIndices[a], m[a][l]);
+				MaximumProjector.loadVertices(f, usedVertexIndices[a], m[a][l]);
 			}
 		}
 
