@@ -37,9 +37,9 @@ public class Register_ implements PlugIn {
 
 		Prefs.set("register_sphere_proj.datadir", datadir);
 		Prefs.set("register_sphere_proj.outputdir", outputdir);
-		Prefs.savePreferences();
 
 		try {
+			Prefs.savePreferences();
 			prepareRegistration(new File(datadir), new File(outputdir));
 			register(nLayers);
 		} catch(Exception e) {
