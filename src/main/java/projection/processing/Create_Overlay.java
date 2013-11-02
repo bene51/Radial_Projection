@@ -81,7 +81,7 @@ public class Create_Overlay extends TimelapseProcessor implements PlugIn {
 			ip.setMinAndMax(min, max);
 			ip = ip.convertToByte(true);
 
-			ImageProcessor co = contribs != null ? contribs :
+			ImageProcessor co = contribs != null ? contribs.duplicate() :
 				new ColorProcessor(ip.getWidth(), ip.getHeight());
 
 			int len = ip.getWidth() * ip.getHeight();
