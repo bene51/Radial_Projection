@@ -37,6 +37,9 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 	private File outputdir;
 	private SphericalMaxProjection smp;
 	private float[][] weights;
+
+	// the forward transforms, i.e. the transformation that transforms
+	// the reference sphere to the individual views.
 	private Matrix4f[] transforms;
 	private boolean saveOutput;
 	private int[] angles;
@@ -258,12 +261,8 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			if(outf.exists())
 				continue;
 			short[] res = new short[vertices.length];
-			for(int v = 0; v < vertices.length; v++) {
-				Point3f vertex = new Point3f(vertices[v]);
-				if(transforms[a] != null)
-					transforms[a].transform(vertex);
+			for(int v = 0; v < vertices.length; v++)
 				res[v] = (short)(100 * weights[a][v]);
-			}
 			SphericalMaxProjection.saveShortData(res, outf.getAbsolutePath());
 		}
 	}
@@ -276,14 +275,9 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 		Point3f[] vertices = smp.getSphere().getVertices();
 		int[] res = new int[vertices.length];
 		for(int v = 0; v < vertices.length; v++) {
-			Point3f vertex = vertices[v];
 			double r = 0, g = 0, b = 0;
 			double sum = 0;
 			for(int a = 0; a < angles.length; a++) {
-				Point3f xvtx = new Point3f(vertex);
-				if(transforms[a] != null)
-					transforms[a].transform(xvtx);
-
 				float w = weights[a][v];
 				int c = colors[a % colors.length];
 
@@ -343,12 +337,8 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			File out = new File(outputdir, String.format("tp%04d_%02d.vertices", tp, l));
 			float[] res = new float[vertices.length];
 			for(int v = 0; v < vertices.length; v++) {
-				Point3f vertex = vertices[v];
 				float sum = 0;
 				for(int a = 0; a < angles.length; a++) {
-					Point3f xvtx = new Point3f(vertex);
-					if(transforms[a] != null)
-						transforms[a].transform(xvtx);
 					float w = weights[a][v];
 					float ma = (m[a][l][v] & 0xffff);
 					sum += w;
