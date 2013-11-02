@@ -90,6 +90,7 @@ public class MaximumProjector {
 		String line;
 		while((line = in.readLine()) != null)
 			vs.add(Integer.parseInt(line));
+		in.close();
 		int[] ret = new int[vs.size()];
 		for(int i = 0; i < ret.length; i++)
 			ret[i] = vs.get(i);
