@@ -18,12 +18,12 @@ public class AngleWeighter implements FusionWeight {
 
 	private final int aperture;
 	private final Point3f center;
-	private final int angle;
+	private final double angle;
 	private final int axis;
 	public static final double overlap = 20;
 	public static final double overlap2 = overlap / 2;
 
-	public AngleWeighter(int axis, int angle, int aperture, Point3f center) {
+	public AngleWeighter(int axis, double angle, int aperture, Point3f center) {
 		this.axis = axis;
 		this.angle = angle;
 		this.aperture = aperture;
@@ -99,10 +99,9 @@ public class AngleWeighter implements FusionWeight {
 		if(angle < 0) {
 			double t = angle + aperture/2.0;
 			return (float)(1.0 / (1 + Math.exp(-k * t)));
-		} else {
-			double t = angle - aperture/2.0;
-			return 1f - (float)(1.0 / (1 + Math.exp(-k * t)));
 		}
+		double t = angle - aperture/2.0;
+		return 1f - (float)(1.0 / (1 + Math.exp(-k * t)));
 	}
 
 	public void weightImage(ImagePlus image) {

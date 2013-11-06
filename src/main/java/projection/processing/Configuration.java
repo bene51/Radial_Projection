@@ -23,7 +23,7 @@ public class Configuration {
 	public final double cx, cy, cz, radius;
 	public final double layerwidth;
 
-	public final int[] angles;
+	public final double[] angles;
 	public final String[] angleNames;
 	public final Matrix4f[] transformations;
 	public final int[] apertures;
@@ -47,13 +47,13 @@ public class Configuration {
 		this.radius      = readDouble(props, names.radius.name());
 		this.layerwidth  = readDouble(props, names.layerwidth.name());
 
-		angles = new int[nAngles];
+		angles = new double[nAngles];
 		angleNames = new String[nAngles];
 		transformations = new Matrix4f[nAngles];
 		apertures = new int[nAngles];
 
 		for(int a = 0; a < nAngles; a++) {
-			angles[a] = readInt(props, "angle" + a + ".value");
+			angles[a] = readDouble(props, "angle" + a + ".value");
 			angleNames[a] = readString(props, "angle" + a + ".name");
 			transformations[a] = TransformIO.fromString(readString(props, "angle" + a + ".transformation"));
 			apertures[a] = readInt(props, "angle" + a + ".aperture");
@@ -63,7 +63,7 @@ public class Configuration {
 	public Configuration(int w, int h, int d, int nTimepoints, int nAngles,
 			int nLayers, double pw, double ph, double pd,
 			double cx, double cy, double cz, double radius,
-			double layerwidth, int[] angles, String[] angleNames,
+			double layerwidth, double[] angles, String[] angleNames,
 			Matrix4f[] transformations, int[] apertures) {
 		super();
 		this.w = w;
@@ -129,7 +129,7 @@ public class Configuration {
 		out.println(names.layerwidth.name() + "=" + Double.toString(layerwidth));
 
 		for(int a = 0; a < nAngles; a++)
-			out.println("angle" + a + ".value" + "=" + Integer.toString(angles[a]));
+			out.println("angle" + a + ".value" + "=" + Double.toString(angles[a]));
 		for(int a = 0; a < nAngles; a++)
 			out.println("angle" + a + ".name" + "=" + angleNames[a]);
 		for(int a = 0; a < nAngles; a++)
@@ -149,7 +149,7 @@ public class Configuration {
 		double cx = 587.82904, cy = 522.97534, cz = 367.6763, radius = 345.3111267089844;
 		double layerwidth = 140;
 		int[] apertures = new int[] {45, 45, 45, 45, 45, 45, 45, 45};
-		int[] angles = new int[8];
+		double[] angles = new double[8];
 		String[] angleNames = new String[8];
 		Matrix4f[] transformations = new Matrix4f[8];
 
