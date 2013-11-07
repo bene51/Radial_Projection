@@ -42,7 +42,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 	// the reference sphere to the individual views.
 	private Matrix4f[] transforms;
 	private boolean saveOutput;
-	private int[] angles;
+	private double[] angles;
 	private int[][] usedVertexIndices;
 	private String[] angleNames;
 	private int nLayers;
@@ -118,7 +118,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 		Arrays.sort(angleFiles);
 		int nAngles = angleFiles.length;
 
-		this.angles = new int[nAngles];
+		this.angles = new double[nAngles];
 		this.angleNames = new String[nAngles];
 		int[] apertures = new int[nAngles];
 		this.transforms = new Matrix4f[nAngles];
@@ -186,7 +186,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 		}
 		int nAngles = angleFiles.size();
 
-		this.angles = new int[nAngles];
+		this.angles = new double[nAngles];
 		this.angleNames = new String[nAngles];
 		int[] apertures = new int[nAngles];
 		this.transforms = new Matrix4f[nAngles];
@@ -197,7 +197,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			File f = angleFiles.get(aIndex);
 			BufferedReader in = new BufferedReader(new FileReader(f));
 			angleNames[aIndex] = in.readLine();
-			angles[aIndex] = Integer.parseInt(in.readLine());
+			angles[aIndex] = Double.parseDouble(in.readLine());
 			apertures[aIndex] = Integer.parseInt(in.readLine());
 			transforms[aIndex] = TransformIO.fromString(in.readLine());
 			in.close();
