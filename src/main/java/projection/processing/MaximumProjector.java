@@ -223,4 +223,37 @@ public class MaximumProjector {
 		maxima = new short[nLayers][usedVertexIndices.length];
 		System.out.println("Overall time " + (totalEnd - totalStart) + " ms");
 	}
+
+	public static byte[][] createMask(
+			final int w, final int h, final int d,
+			final double pw, final double ph, final double pd,
+			final Point3f center, final float radius,
+			final double layerWidth, final int nLayers,
+			final FusionWeight weighter) {
+		byte[][] mask = new byte[d][w * h];
+		final double t2 = nLayers * layerWidth / 2;
+		final double inner2 = (radius - t2) * (radius - t2);
+		final double outer2 = (radius + t2) * (radius + t2);
+		final byte FG = (byte)255;
+
+		for(int z = 0; z < d; z++) {
+			double rz = z * pd;
+			double dz2 = (rz - center.z) * (rz - center.z);
+			for(int y = 0, i = 0; y < h; y++) {
+				double ry = y * ph;
+				double dy2 = (ry - center.y) * (ry - center.y);
+				for(int x = 0; x < w; x++, i++) {
+					double rx = x * pw;
+					double dx2 = (rx - center.x) * (rx - center.x);
+					float weight = weighter.getWeight((float)rx, (float)ry, (float)rz);
+					if(weight == 0)
+						continue;
+					double d2 = dx2 + dy2 + dz2;
+					if(d2 >= inner2 && d2 <= outer2)
+						mask[z][i] = FG;
+				}
+			}
+		}
+		return mask;
+	}
 }
