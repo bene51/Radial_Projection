@@ -129,7 +129,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			File f = new File(folder, angleFiles[aIndex]);
 			BufferedReader in = new BufferedReader(new FileReader(f));
 			angleNames[aIndex] = in.readLine();
-			angles[aIndex] = Integer.parseInt(in.readLine());
+			angles[aIndex] = Double.parseDouble(in.readLine());
 			apertures[aIndex] = Integer.parseInt(in.readLine());
 			transforms[aIndex] = TransformIO.fromString(in.readLine());
 			in.close();
