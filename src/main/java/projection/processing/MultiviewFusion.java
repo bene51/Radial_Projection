@@ -120,7 +120,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 
 		this.angles = new double[nAngles];
 		this.angleNames = new String[nAngles];
-		int[] apertures = new int[nAngles];
+		double[] apertures = new double[nAngles];
 		this.transforms = new Matrix4f[nAngles];
 		this.usedVertexIndices = new int[nAngles][];
 
@@ -130,8 +130,10 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			BufferedReader in = new BufferedReader(new FileReader(f));
 			angleNames[aIndex] = in.readLine();
 			angles[aIndex] = Double.parseDouble(in.readLine());
-			apertures[aIndex] = Integer.parseInt(in.readLine());
-			transforms[aIndex] = TransformIO.fromString(in.readLine());
+			// colors[aIndex] = cm.getRGB(aIndex);
+			apertures[aIndex] = Double.parseDouble(in.readLine());
+			Matrix4f m = TransformIO.fromString(in.readLine());
+			transforms[aIndex] = m;
 			in.close();
 
 			f = new File(folder, angleFiles[aIndex].replace(".mat", ".indices"));
@@ -188,7 +190,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 
 		this.angles = new double[nAngles];
 		this.angleNames = new String[nAngles];
-		int[] apertures = new int[nAngles];
+		double[] apertures = new double[nAngles];
 		this.transforms = new Matrix4f[nAngles];
 		this.usedVertexIndices = new int[nAngles][];
 
@@ -198,7 +200,7 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 			BufferedReader in = new BufferedReader(new FileReader(f));
 			angleNames[aIndex] = in.readLine();
 			angles[aIndex] = Double.parseDouble(in.readLine());
-			apertures[aIndex] = Integer.parseInt(in.readLine());
+			apertures[aIndex] = Double.parseDouble(in.readLine());
 			transforms[aIndex] = TransformIO.fromString(in.readLine());
 			in.close();
 		}

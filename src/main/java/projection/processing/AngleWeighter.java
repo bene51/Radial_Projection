@@ -16,14 +16,14 @@ public class AngleWeighter implements FusionWeight {
 	public static final int Y_AXIS = 1;
 	public static final int Z_AXIS = 2;
 
-	private final int aperture;
+	private final double aperture;
 	private final Point3f center;
 	private final double angle;
 	private final int axis;
 	public static final double overlap = 20;
 	public static final double overlap2 = overlap / 2;
 
-	public AngleWeighter(int axis, double angle, int aperture, Point3f center) {
+	public AngleWeighter(int axis, double angle, double aperture, Point3f center) {
 		this.axis = axis;
 		this.angle = angle;
 		this.aperture = aperture;

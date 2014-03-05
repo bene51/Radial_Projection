@@ -26,7 +26,7 @@ public class Configuration {
 	public final double[] angles;
 	public final String[] angleNames;
 	public final Matrix4f[] transformations;
-	public final int[] apertures;
+	public final double[] apertures;
 
 	public Configuration(File f) throws Exception {
 		Properties props = new Properties();
@@ -50,13 +50,13 @@ public class Configuration {
 		angles = new double[nAngles];
 		angleNames = new String[nAngles];
 		transformations = new Matrix4f[nAngles];
-		apertures = new int[nAngles];
+		apertures = new double[nAngles];
 
 		for(int a = 0; a < nAngles; a++) {
 			angles[a] = readDouble(props, "angle" + a + ".value");
 			angleNames[a] = readString(props, "angle" + a + ".name");
 			transformations[a] = TransformIO.fromString(readString(props, "angle" + a + ".transformation"));
-			apertures[a] = readInt(props, "angle" + a + ".aperture");
+			apertures[a] = readDouble(props, "angle" + a + ".aperture");
 		}
 	}
 
@@ -64,7 +64,7 @@ public class Configuration {
 			int nLayers, double pw, double ph, double pd,
 			double cx, double cy, double cz, double radius,
 			double layerwidth, double[] angles, String[] angleNames,
-			Matrix4f[] transformations, int[] apertures) {
+			Matrix4f[] transformations, double[] apertures) {
 		super();
 		this.w = w;
 		this.h = h;
@@ -135,7 +135,7 @@ public class Configuration {
 		for(int a = 0; a < nAngles; a++)
 			out.println("angle" + a + ".transformation" + "=" + TransformIO.toString(transformations[a]));
 		for(int a = 0; a < nAngles; a++)
-			out.println("angle" + a + ".aperture" + "=" + Integer.toString(apertures[a]));
+			out.println("angle" + a + ".aperture" + "=" + Double.toString(apertures[a]));
 
 		out.close();
 	}
@@ -148,7 +148,7 @@ public class Configuration {
 		double pw = 2.6, ph = 2.6, pd = 4;
 		double cx = 587.82904, cy = 522.97534, cz = 367.6763, radius = 345.3111267089844;
 		double layerwidth = 140;
-		int[] apertures = new int[] {45, 45, 45, 45, 45, 45, 45, 45};
+		double[] apertures = new double[] {45, 45, 45, 45, 45, 45, 45, 45};
 		double[] angles = new double[8];
 		String[] angleNames = new String[8];
 		Matrix4f[] transformations = new Matrix4f[8];
