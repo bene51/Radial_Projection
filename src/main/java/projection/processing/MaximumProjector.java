@@ -99,7 +99,7 @@ public class MaximumProjector {
 		return ret;
 	}
 
-	public void prepareForProjection(final int w, final int h, final int d, final double pw, final double ph, final double pd, final double layerWidth, final int nLayers, final FusionWeight weighter) {
+	public void prepareForProjection(final int w, final int h, final int d, final double pw, final double ph, final double pd, final double layerWidth, final int nLayers, final double ratioInside, final FusionWeight weighter) {
 
 		long totalStart = System.currentTimeMillis();
 		final int nProcessors = Runtime.getRuntime().availableProcessors();
@@ -108,7 +108,7 @@ public class MaximumProjector {
 		final XYIList[][] correspondences = new XYIList[d][nProcessors];
 		final XYIList[] all_correspondences = new XYIList[d];
 
-		final double t2 = nLayers * layerWidth / 2;
+		final double t2 = nLayers * layerWidth * ratioInside;
 
 		final ArrayList<Integer> allValidVertexIndices = new ArrayList<Integer>();
 		final IndexedTriangleMesh sphere = smp.getSphere();
