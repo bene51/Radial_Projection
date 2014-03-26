@@ -15,56 +15,58 @@ import projection.util.TransformIO;
 public class Configuration {
 
 	enum names {
-		width, height, nPlanes, nTimepoints, nAngles, nLayers, pixelwidth, pixelheight, pixeldepth, centerx, centery, centerz, radius, layerwidth,
+		width, height, nPlanes, nTimepoints, nAngles, nLayers, pixelwidth, pixelheight, pixeldepth, centerx, centery, centerz, radius, layerwidth, ratioInside
 	}
 
 	public final int w, h, d, nTimepoints, nAngles, nLayers;
 	public final double pw, ph, pd;
 	public final double cx, cy, cz, radius;
 	public final double layerwidth;
+	public final double ratioInside;
 
 	public final double[] angles;
 	public final String[] angleNames;
 	public final Matrix4f[] transformations;
-	public final int[] apertures;
+	public final double[] apertures;
 
 	public Configuration(File f) throws Exception {
 		Properties props = new Properties();
 		FileReader fw = new FileReader(f);
 		props.load(fw);
-		this.w           = readInt(props, names.width.name());
-		this.h           = readInt(props, names.height.name());
-		this.d           = readInt(props, names.nPlanes.name());
-		this.nTimepoints = readInt(props, names.nTimepoints.name());
-		this.nAngles     = readInt(props, names.nAngles.name());
-		this.nLayers     = readInt(props, names.nLayers.name());
-		this.pw          = readDouble(props, names.pixelwidth.name());
-		this.ph          = readDouble(props, names.pixelheight.name());
-		this.pd          = readDouble(props, names.pixeldepth.name());
-		this.cx          = readDouble(props, names.centerx.name());
-		this.cy          = readDouble(props, names.centery.name());
-		this.cz          = readDouble(props, names.centerz.name());
-		this.radius      = readDouble(props, names.radius.name());
-		this.layerwidth  = readDouble(props, names.layerwidth.name());
+		this.w              = readInt(props, names.width.name());
+		this.h              = readInt(props, names.height.name());
+		this.d              = readInt(props, names.nPlanes.name());
+		this.nTimepoints    = readInt(props, names.nTimepoints.name());
+		this.nAngles        = readInt(props, names.nAngles.name());
+		this.nLayers        = readInt(props, names.nLayers.name());
+		this.pw             = readDouble(props, names.pixelwidth.name());
+		this.ph             = readDouble(props, names.pixelheight.name());
+		this.pd             = readDouble(props, names.pixeldepth.name());
+		this.cx             = readDouble(props, names.centerx.name());
+		this.cy             = readDouble(props, names.centery.name());
+		this.cz             = readDouble(props, names.centerz.name());
+		this.radius         = readDouble(props, names.radius.name());
+		this.layerwidth     = readDouble(props, names.layerwidth.name());
+		this.ratioInside    = readDouble(props, names.ratioInside.name());
 
 		angles = new double[nAngles];
 		angleNames = new String[nAngles];
 		transformations = new Matrix4f[nAngles];
-		apertures = new int[nAngles];
+		apertures = new double[nAngles];
 
 		for(int a = 0; a < nAngles; a++) {
 			angles[a] = readDouble(props, "angle" + a + ".value");
 			angleNames[a] = readString(props, "angle" + a + ".name");
 			transformations[a] = TransformIO.fromString(readString(props, "angle" + a + ".transformation"));
-			apertures[a] = readInt(props, "angle" + a + ".aperture");
+			apertures[a] = readDouble(props, "angle" + a + ".aperture");
 		}
 	}
 
 	public Configuration(int w, int h, int d, int nTimepoints, int nAngles,
 			int nLayers, double pw, double ph, double pd,
 			double cx, double cy, double cz, double radius,
-			double layerwidth, double[] angles, String[] angleNames,
-			Matrix4f[] transformations, int[] apertures) {
+			double layerwidth, double ratioInside, double[] angles, String[] angleNames,
+			Matrix4f[] transformations, double[] apertures) {
 		super();
 		this.w = w;
 		this.h = h;
@@ -80,6 +82,7 @@ public class Configuration {
 		this.cz = cz;
 		this.radius = radius;
 		this.layerwidth = layerwidth;
+		this.ratioInside = ratioInside;
 		this.angles = angles;
 		this.angleNames = angleNames;
 		this.transformations = transformations;
@@ -127,6 +130,7 @@ public class Configuration {
 		out.println(names.centerz.name() + "=" + Double.toString(cz));
 		out.println(names.radius.name() + "=" + Double.toString(radius));
 		out.println(names.layerwidth.name() + "=" + Double.toString(layerwidth));
+		out.println(names.ratioInside.name() + "=" + Double.toString(ratioInside));
 
 		for(int a = 0; a < nAngles; a++)
 			out.println("angle" + a + ".value" + "=" + Double.toString(angles[a]));
@@ -135,7 +139,7 @@ public class Configuration {
 		for(int a = 0; a < nAngles; a++)
 			out.println("angle" + a + ".transformation" + "=" + TransformIO.toString(transformations[a]));
 		for(int a = 0; a < nAngles; a++)
-			out.println("angle" + a + ".aperture" + "=" + Integer.toString(apertures[a]));
+			out.println("angle" + a + ".aperture" + "=" + Double.toString(apertures[a]));
 
 		out.close();
 	}
@@ -148,7 +152,7 @@ public class Configuration {
 		double pw = 2.6, ph = 2.6, pd = 4;
 		double cx = 587.82904, cy = 522.97534, cz = 367.6763, radius = 345.3111267089844;
 		double layerwidth = 140;
-		int[] apertures = new int[] {45, 45, 45, 45, 45, 45, 45, 45};
+		double[] apertures = new double[] {45, 45, 45, 45, 45, 45, 45, 45};
 		double[] angles = new double[8];
 		String[] angleNames = new String[8];
 		Matrix4f[] transformations = new Matrix4f[8];
@@ -173,9 +177,10 @@ public class Configuration {
 				}
 			}
 		}
+		double ratioInside = 1.0;
 		Configuration c = new Configuration(
 				w, h, d, nTimepoints, nAngles, nLayers,
-				pw, ph, pd, cx, cy, cz, radius, layerwidth,
+				pw, ph, pd, cx, cy, cz, radius, layerwidth, ratioInside,
 				angles, angleNames, transformations, apertures);
 		c.saveConfiguration(new File("/Users/bschmid/PostDoc/spim2_testdata/raw/RadialMaxProj.conf"));
 	}

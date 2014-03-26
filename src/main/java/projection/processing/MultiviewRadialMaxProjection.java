@@ -131,7 +131,6 @@ public class MultiviewRadialMaxProjection {
 	 * 	- [I], [a1->a0]
 	 */
 	private SphericalMaxProjection[] initSphericalMaximumProjection() throws IOException {
-
 		int subd = (int)Math.round(conf.radius / (Math.min(conf.pw, Math.min(conf.ph, conf.pd))));
 		int levels = (int)Math.floor(Math.log(subd) / Math.log(2));
 
@@ -158,7 +157,7 @@ public class MultiviewRadialMaxProjection {
 			projectors[a].prepareForProjection(
 				conf.w, conf.h, conf.d,
 				conf.pw, conf.ph, conf.pd,
-				conf.layerwidth, conf.nLayers,
+				conf.layerwidth, conf.nLayers, conf.ratioInside,
 				new AngleWeighter(AngleWeighter.X_AXIS, conf.angles[a], conf.apertures[a], cen));
 		}
 		return smp;
