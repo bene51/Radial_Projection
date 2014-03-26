@@ -8,6 +8,10 @@ import ij.gui.Plot;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import javax.vecmath.Point3f;
 
 public class AngleWeighter implements FusionWeight {
@@ -104,22 +108,35 @@ public class AngleWeighter implements FusionWeight {
 		return 1f - (float)(1.0 / (1 + Math.exp(-k * t)));
 	}
 
-	public void weightImage(ImagePlus image) {
-		double pd = image.getCalibration().pixelDepth;
-		double pw = image.getCalibration().pixelWidth;
-		double ph = image.getCalibration().pixelHeight;
-		int w = image.getWidth(), h = image.getHeight(), d = image.getStackSize();
-		for(int z = 0; z < d; z++) {
-			float rz = (float)(z * pd);
-			ImageProcessor ip = image.getStack().getProcessor(z + 1);
-			for(int y = 0; y < h; y++) {
-				float ry = (float)(y * ph);
-				for(int x = 0; x < w; x++) {
-					float rx = (float)(x * pw);
-					float v = ip.getf(x, y);
-					ip.setf(x,  y, v * getWeight(rx, ry, rz));
+	public void weightImage(final ImagePlus image) {
+		final double pd = image.getCalibration().pixelDepth;
+		final double pw = image.getCalibration().pixelWidth;
+		final double ph = image.getCalibration().pixelHeight;
+		final int w = image.getWidth(), h = image.getHeight(), d = image.getStackSize();
+		final ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		for(int iz = 0; iz < d; iz++) {
+			final int z = iz;
+			exec.submit(new Runnable() {
+				@Override
+				public void run() {
+					float rz = (float)(z * pd);
+					ImageProcessor ip = image.getStack().getProcessor(z + 1);
+					for(int y = 0; y < h; y++) {
+						float ry = (float)(y * ph);
+						for(int x = 0; x < w; x++) {
+							float rx = (float)(x * pw);
+							float v = ip.getf(x, y);
+							ip.setf(x,  y, v * getWeight(rx, ry, rz));
+						}
+					}
 				}
-			}
+			});
+		}
+		exec.shutdown();
+		try {
+			exec.awaitTermination(1, TimeUnit.DAYS);
+		} catch(InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -144,7 +161,7 @@ public class AngleWeighter implements FusionWeight {
 		new ImageJ();
 		int[] angles = new int[] {-135, -45, 45, 135};
 		for(int a = 0; a < angles.length; a++) {
-			AngleWeighter aw = new AngleWeighter(X_AXIS, angles[a], 45, new Point3f(50, 50, 50));
+			AngleWeighter aw = new AngleWeighter(X_AXIS, angles[a], 90, new Point3f(50, 50, 50));
 			int w = 100, h = 100, d = 100;
 			ImageStack stack = new ImageStack(w, h);
 			for(int z = 0; z < d; z++) {
@@ -169,7 +186,7 @@ public class AngleWeighter implements FusionWeight {
 		Plot p = new Plot("weights", "angle", "weight", xd, yd);
 		p.show();
 
-		int nAngles = 2;
+		int nAngles = 1;
 		int angleInc = 45;
 		int aperture = 90 / nAngles;
 		int CAMERA1 = 0, CAMERA2 = 1;
