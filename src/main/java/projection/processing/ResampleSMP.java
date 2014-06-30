@@ -5,6 +5,7 @@ import ij.IJ;
 import ij.plugin.PlugIn;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.HashSet;
 
@@ -92,10 +93,14 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 	}
 
 	@Override
-	public void processTimepoint(int tp) throws IOException {
-		for(int l = 0; l < nLayers; l++) {
-			String basename = String.format("tp%04d_%02d", tp, l);
-			String name = basename + ".vertices";
+	public void processTimepoint(final int tp) throws IOException {
+		String[] files = inputdir.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String f) {
+				return f.startsWith(String.format("tp%04d", tp)) && f.endsWith(".vertices");
+			}
+		});
+		for(String name : files) {
 			File infile = new File(inputdir, name);
 			File outfile = new File(outputdir, name);
 			if(outfile.exists())
