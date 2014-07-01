@@ -88,20 +88,18 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 
 		// resample contributions if present
 		File contfile = new File(inputdir, "contributions.vertices");
-		if(!contfile.exists())
-			return;
-		int[] overlayold = SphericalMaxProjection.loadIntData(contfile.getAbsolutePath(), smp.getSphere().nVertices);
-		int[] overlaynew = new int[sphere.nVertices];
-		for(int j = 0; j < indices.length; j++)
-			overlaynew[j] = overlayold[indices[j]];
-		SphericalMaxProjection.saveIntData(overlaynew, new File(outputdir, "contributions.vertices").getAbsolutePath());
-
-
+		if(contfile.exists()) {
+			int[] overlayold = SphericalMaxProjection.loadIntData(contfile.getAbsolutePath(), smp.getSphere().nVertices);
+			int[] overlaynew = new int[sphere.nVertices];
+			for(int j = 0; j < indices.length; j++)
+				overlaynew[j] = overlayold[indices[j]];
+			SphericalMaxProjection.saveIntData(overlaynew, new File(outputdir, "contributions.vertices").getAbsolutePath());
+		}
 
 		String[] angleFiles = inputdir.list(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".mat");
+				return name.endsWith(".indices");
 			}
 
 		});
@@ -111,7 +109,7 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 			this.usedVertexIndices = new int[nAngles][];
 
 			for(int aIndex = 0; aIndex < nAngles; aIndex++) {
-				File f = new File(inputdir, angleFiles[aIndex].replace(".mat", ".indices"));
+				File f = new File(inputdir, angleFiles[aIndex]);
 				usedVertexIndices[aIndex] = MaximumProjector.loadVertexIndices(f);
 			}
 		}
