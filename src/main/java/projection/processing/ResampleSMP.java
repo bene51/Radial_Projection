@@ -48,7 +48,7 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 
 	// used if resampling unfused data:
 	private int[][] usedVertexIndices = null;
-	private int[] angleNames = null;
+	private String[] angleNames = null;
 
 	public void prepareResampling(File inputdir, File outputdir, int nLayers, int levels) throws IOException {
 		this.inputdir = inputdir;
@@ -57,13 +57,13 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 		this.nLayers = nLayers;
 		this.smp = new SphericalMaxProjection(new File(inputdir, "Sphere.obj").getAbsolutePath());
 
-		int n = smp.getSphere().nVertices;
-		float radius = smp.getRadius();
+		final int n = smp.getSphere().nVertices;
+		final float radius = smp.getRadius();
 		Point3f center = smp.getCenter();
 
-		int subd = (int)((-20 + Math.sqrt(400 - 40 * (12 - n))) / 20 + 1);
-		int oldlevels = (int)Math.floor(Math.log(subd) / Math.log(2));
-		int newlevels = oldlevels - levels;
+		final int subd = (int)((-20 + Math.sqrt(400 - 40 * (12 - n))) / 20 + 1);
+		final int oldlevels = (int)Math.floor(Math.log(subd) / Math.log(2));
+		final int newlevels = oldlevels - levels;
 
 		IJ.showStatus("Creating icosahedron");
 		Icosahedron icosa = new Icosahedron(radius);
@@ -107,10 +107,12 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 			Arrays.sort(angleFiles);
 			int nAngles = angleFiles.length;
 			this.usedVertexIndices = new int[nAngles][];
+			this.angleNames = new String[nAngles];
 
 			for(int aIndex = 0; aIndex < nAngles; aIndex++) {
 				File f = new File(inputdir, angleFiles[aIndex]);
 				usedVertexIndices[aIndex] = MaximumProjector.loadVertexIndices(f);
+				angleNames[aIndex] = angleFiles[aIndex].substring(0, 4);
 			}
 		}
 	}
@@ -135,7 +137,7 @@ public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 				if(usedVertexIndices == null) {
 					maxima = smp.loadMaxima(infile.getAbsolutePath());
 				} else {
-					maxima = new short[sphere.nVertices];
+					maxima = new short[smp.getSphere().nVertices];
 					MaximumProjector.loadVertices(infile, usedVertexIndices[a], maxima);
 				}
 
