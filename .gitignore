@@ -1,7 +1,10 @@
 .project
 .classpath
+.factorypath
 .settings
 *.swp
 .DS_Store
 .svn
 target
+jars
+plugins
