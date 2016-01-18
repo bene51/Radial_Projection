@@ -2,6 +2,8 @@ package projection.processing;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.OvalRoi;
+import ij.gui.Overlay;
 import ij.gui.Roi;
 import ij.measure.Calibration;
 import ij.plugin.Duplicator;
@@ -9,13 +11,27 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import ij.process.StackConverter;
+import ij3d.pointlist.PointListDialog;
+import ij3d.pointlist.PointListPanel;
 
+import java.awt.Button;
+import java.awt.FlowLayout;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3f;
 import javax.vecmath.Point4f;
+
+import vib.BenesNamedPoint;
+import vib.PointList;
+import vib.PointList.PointListListener;
 
 import Jama.Matrix;
 import customnode.MeshMaker;
@@ -23,6 +39,14 @@ import customnode.MeshMaker;
 public class Fit_Sphere implements PlugInFilter {
 	private ImagePlus image;
 	private double x0, y0, z0, r;
+
+	public static void main(String... args) {
+		new ij.ImageJ();
+		ImagePlus imp = IJ.openImage("C:\\Users\\huisken\\Desktop\\transmission.tif");
+		imp.show();
+		Fit_Sphere fs = new Fit_Sphere(imp);
+		fs.fitInteractive();
+	}
 
 	public Fit_Sphere() {}
 
@@ -93,6 +117,128 @@ public class Fit_Sphere implements PlugInFilter {
 		imp = mesh.createOverlay(imp, 0x00ff00);
 		image.setRoi(roi);
 		return imp;
+	}
+
+	public void fitInteractive() {
+		final int d = image.getStackSize();
+
+		final Calibration cal = image.getCalibration();
+		final double pw = cal.pixelWidth;
+		final double ph = cal.pixelHeight;
+		final double pd = cal.pixelDepth;
+		final AtomicInteger id = new AtomicInteger();
+
+		final PointList points = new PointList();
+		PointListPanel plPanel = new PointListPanel("Surface Points", points);
+		final PointListDialog pld = new PointListDialog(IJ.getInstance());
+		pld.addPointList("Surface Points", plPanel);
+
+		final Point4f sphere = new Point4f(0, 0, 0, -1);
+
+		Panel p = new Panel(new FlowLayout());
+		Button done = new Button("Done");
+		done.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Fit_Sphere.this.x0 = sphere.x;
+				Fit_Sphere.this.y0 = sphere.y;
+				Fit_Sphere.this.z0 = sphere.z;
+				Fit_Sphere.this.r = sphere.w;
+				pld.dispose();
+				synchronized(Fit_Sphere.this) {
+					Fit_Sphere.this.notifyAll();
+				}
+			}
+		});
+		p.add(done);
+		pld.addPanel(p);
+
+		pld.pack();
+		pld.setVisible(true);
+
+		image.getCanvas().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				points.add(
+						new BenesNamedPoint(
+								"Pt " + id.incrementAndGet(),
+								pw * e.getX(),
+								ph * e.getY(),
+								pd * (image.getZ() - 1)));
+			}
+		});
+
+		points.addPointListListener(new PointListListener() {
+
+			private final void drawOverlay(Point4f sphere) {
+				Overlay overlay = image.getOverlay();
+				if(overlay == null) {
+					overlay = new Overlay();
+					image.setOverlay(overlay);
+				}
+				overlay.clear();
+				if(sphere.w < 0)
+					return;
+				int z0 = Math.max(0, (int)Math.round((sphere.z - sphere.w) / pd));
+				int z1 = Math.min(d - 1, (int)Math.round((sphere.z + sphere.w) / pd));
+				for(int z = z0; z <= z1; z++) {
+					double dz = z * pd - sphere.z;
+					double rz = Math.sqrt(sphere.w * sphere.w - dz * dz) / pw;
+					System.out.println("z = " + z + " dz = " + dz + " rz = " + rz);
+					OvalRoi roi = new OvalRoi(sphere.x / pw - rz, sphere.y / ph - rz, 2 * rz, 2 * rz);
+					roi.setPosition(z + 1);
+					overlay.add(roi);
+				}
+			}
+
+			private final void updateOverlay() {
+				if(points.size() < 4) {
+					sphere.w = -1;
+					drawOverlay(sphere);
+					return;
+				}
+				ArrayList<Point3f> pts = new ArrayList<Point3f>(points.size());
+				for(BenesNamedPoint p : points)
+					pts.add(new Point3f((float)p.x, (float)p.y, (float)p.z));
+				fit(pts, sphere);
+				System.out.println("Fitted sphere " + sphere);
+				drawOverlay(sphere);
+			}
+
+			@Override
+			public void added(BenesNamedPoint pt) {
+				updateOverlay();
+			}
+
+			@Override
+			public void highlighted(BenesNamedPoint arg0) {
+			}
+
+			@Override
+			public void moved(BenesNamedPoint arg0) {
+			}
+
+			@Override
+			public void removed(BenesNamedPoint arg0) {
+				updateOverlay();
+			}
+
+			@Override
+			public void renamed(BenesNamedPoint arg0) {
+			}
+
+			@Override
+			public void reordered() {
+			}
+		});
+
+		try {
+			synchronized(Fit_Sphere.this) {
+				Fit_Sphere.this.wait();
+			}
+		} catch(InterruptedException e) {}
+		System.out.println("done");
+		image.getOverlay().clear();
 	}
 
 
