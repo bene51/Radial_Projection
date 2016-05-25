@@ -7,10 +7,8 @@ import java.util.Collections;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 
-import projection.util.PointMatch;
-
-
 import math3d.JacobiDouble;
+import projection.util.PointMatch;
 import fiji.util.KDTree;
 import fiji.util.NearestNeighborSearch;
 import fiji.util.node.Leaf;
@@ -86,7 +84,7 @@ public class ICPRegistration {
 		bestRigid(correspondences, fm, cor);
 		result.mul(fm, result);
 		apply(m, fm);
-		System.out.println("ICP: stopping after " + it + " iterations");
+		System.out.println("ICP: stopping after " + it + " iterations (mse = " + mseOld + ")");
 		return mseOld;
 	}
 
@@ -101,13 +99,15 @@ public class ICPRegistration {
 	}
 
 	private static final float calculateMSE(ArrayList<PointMatch> pm) {
+		if(pm.size() == 0)
+			return Float.POSITIVE_INFINITY;
 		double sum = 0.0;
 		for(PointMatch p : pm)
 			sum += p.p1.distanceSquared(p.p2);
 		return (float)(sum / pm.size());
 	}
 
-	private static void bestRigid(ArrayList<PointMatch> pm, Matrix4f result, Point3f cor) {
+	static void bestRigid(ArrayList<PointMatch> pm, Matrix4f result, Point3f cor) {
 		double c1x, c1y, c1z, c2x, c2y, c2z;
 		c1x = c1y = c1z = c2x = c2y = c2z = 0;
 
