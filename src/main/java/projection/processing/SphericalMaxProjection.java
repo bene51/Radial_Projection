@@ -385,6 +385,39 @@ public class SphericalMaxProjection {
 			maxima[i] = (short)(newMaxima[i] / (nNeighbors[i] + 1));
 	}
 
+	public void smooth(short[] maxima, int nPasses) {
+		float[] orgMaxima = new float[maxima.length];
+		float[] newMaxima = new float[maxima.length];
+		for(int i = 0; i < maxima.length; i++)
+			orgMaxima[i] = newMaxima[i] = maxima[i] & 0xffff;
+
+		int[] faces = sphere.getFaces();
+
+		for(int k = 0; k < nPasses; k++) {
+			int[] nNeighbors = new int[maxima.length];
+			// newMaxima is anyway initialized with orgMaxima
+			for(int i = 0; i < sphere.nFaces; i += 3) {
+				int f1 = faces[i];
+				int f2 = faces[i + 1];
+				int f3 = faces[i + 2];
+				nNeighbors[f1] += 2;
+				newMaxima[f1] += orgMaxima[f2];
+				newMaxima[f1] += orgMaxima[f3];
+				nNeighbors[f2] += 2;
+				newMaxima[f2] += orgMaxima[f1];
+				newMaxima[f2] += orgMaxima[f3];
+				nNeighbors[f3] += 2;
+				newMaxima[f3] += orgMaxima[f1];
+				newMaxima[f3] += orgMaxima[f2];
+			}
+			for(int i = 0; i < orgMaxima.length; i++) {
+				newMaxima[i] = orgMaxima[i] = newMaxima[i] / (nNeighbors[i] + 1);
+			}
+		}
+		for(int i = 0; i < orgMaxima.length; i++)
+			maxima[i] = (short)orgMaxima[i];
+	}
+
 	/**
 	 * maxima is unchanged / the resulting transform is not applied.
 	 * @param maxima

@@ -58,10 +58,19 @@ public class Register_ implements PlugIn {
 					m[i] = (short)lv;
 			}
 		}
-		smp.smooth(m);
-		smp.smooth(m);
+		short[] ms = m.clone();
 
-		return fm.findMaxima(m, 10);
+		smp.smooth(ms, 3);
+
+		smp.smooth(m, 50);
+
+		for(int i = 0; i < ms.length; i++) {
+			int diff = (ms[i] & 0xffff) - (m[i] & 0xffff);
+			m[i] = diff > 0 ? (short)diff : 0;
+		}
+		// System.arraycopy(m, 0, maxima[0], 0, m.length);
+
+		return fm.findMaxima(m, null, 20);
 	}
 
 	private SphericalMaxProjection smp;
