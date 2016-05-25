@@ -3,6 +3,8 @@ package projection.processing;
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.Overlay;
+import ij.gui.PointRoi;
 import ij.gui.WaitForUserDialog;
 import ij.plugin.PlugIn;
 import ij.process.ByteProcessor;
@@ -11,10 +13,13 @@ import ij3d.Image3DUniverse;
 
 import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Matrix4f;
@@ -150,6 +155,7 @@ public class Map_Projection extends TimelapseProcessor implements PlugIn {
 	private boolean doContributions, doLines, doCoast;
 	private Matrix4f initial;
 	private int nLayers;
+	private FindMaxima findMaxima;
 
 	public void prepareForProjection(
 			final int nLayers,
@@ -192,10 +198,27 @@ public class Map_Projection extends TimelapseProcessor implements PlugIn {
 			default: throw new IllegalArgumentException("Unsupported map type: " + maptype);
 		}
 		proj.prepareForProjection(smp, tgtWidth);
+		findMaxima = new FindMaxima(smp);
+	}
+
+	ArrayList<Point3f> readPoints(File f) throws IOException {
+		ArrayList<Point3f> list = new ArrayList<Point3f>();
+		BufferedReader in = new BufferedReader(new FileReader(f));
+		String line = null;
+		while((line = in.readLine()) != null) {
+			String[] toks = line.split(",");
+			list.add(new Point3f(
+					(float)Double.parseDouble(toks[0].trim()),
+					(float)Double.parseDouble(toks[0].trim()),
+					(float)Double.parseDouble(toks[0].trim())));
+		}
+		in.close();
+		return list;
 	}
 
 	@Override
 	public void processTimepoint(int tp) throws IOException {
+		System.out.println("fuller: time point " + tp);
 		String basename = String.format("tp%04d", tp);
 
 		File matdir = new File(datadir, "transformations");
@@ -216,11 +239,41 @@ public class Map_Projection extends TimelapseProcessor implements PlugIn {
 
 			short[] maxima = SphericalMaxProjection.loadShortData(infile.getAbsolutePath(), nVertices);
 
+			Overlay overlay = null;
+			File ptsfile = new File(datadir, String.format("tp%04d_%02d.pts", tp, l));
+			if(ptsfile.exists()) {
+				ArrayList<Point3f> pts = readPoints(ptsfile);
+				short[][] vals = new short[1][smp.getSphere().nVertices];
+				vals[0] = maxima;
+				// ArrayList<Point3f> pts = Register_.getPoints(findMaxima, smp, vals);
+				float[] xs = new float[pts.size()];
+				float[] ys = new float[pts.size()];
+				Point2f polar = new Point2f();
+				double[] p2d = new double[2];
+				int i = 0;
+				for(Point3f p : pts) {
+					smp.getPolar(p, polar);
+					toDeg(polar);
+					p2d[0] = polar.x;
+					p2d[1] = polar.y;
+					proj.transform(p2d);
+					xs[i] = (float)p2d[0];
+					ys[i] = (float)p2d[1];
+					i++;
+				}
+				PointRoi roi = new PointRoi(xs, ys);
+				overlay = new Overlay(roi);
+			}
+
 			// maxima = smp.applyTransform(get90DegRot(smp), maxima);
 			ImageProcessor ip = proj.project(maxima);
 			w = ip.getWidth();
 			h = ip.getHeight();
-			IJ.save(new ImagePlus("", ip), outfile.getAbsolutePath());
+			ImagePlus image = new ImagePlus("", ip);
+			image.setOverlay(overlay);
+
+			// coast = transform(smp, mat, coast);
+			IJ.save(image, outfile.getAbsolutePath());
 		}
 		if(doLines) {
 			GeneralPath lines = GeneralProjProjection.createLines();

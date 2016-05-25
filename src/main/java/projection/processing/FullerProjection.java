@@ -185,6 +185,17 @@ public class FullerProjection extends GeneralProjProjection {
 		return out;
 	}
 
+	@Override
+	public void transform(double[] p) {
+		Point3f pout = new Point3f();
+		float px = (float)(p[0] * Math.PI / 180);
+		float py = (float)(p[1] * Math.PI / 180);
+		smp.getPoint(px, py, pout);
+		int index = getImagePos(pout);
+		p[0] = index % w;
+		p[1] = index / w;
+	}
+
 	// returns true if inside
 	public boolean getPointOnSphere(int x, int y, Point3f ret) {
 		int i = y * w + x;
