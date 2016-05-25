@@ -14,6 +14,8 @@ import java.util.HashSet;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 
+import projection.processing.GeometricHash.NodeND;
+import projection.util.PointMatch;
 import projection.util.TransformIO;
 
 
@@ -48,7 +50,7 @@ public class Register_ implements PlugIn {
 		}
 	}
 
-	private static ArrayList<Point3f> getPoints(FindMaxima fm, SphericalMaxProjection smp, short[][] maxima) {
+	public static ArrayList<Point3f> getPoints(FindMaxima fm, SphericalMaxProjection smp, short[][] maxima) {
 		short[] m = new short[maxima[0].length];
 		for(int l = 0; l < maxima.length; l++) {
 			for(int i = 0; i < m.length; i++) {
@@ -108,7 +110,44 @@ public class Register_ implements PlugIn {
 		overall.setIdentity();
 	}
 
+	public File getMatrixDirectory() {
+		return matrixDirectory;
+	}
+
 	private ArrayList<Point3f> tgtPts;
+
+	public static Matrix4f rotateEulerAt(double a1, double a2, double a3, Point3f c) {
+		Matrix4f r = new Matrix4f();
+		double c1 = Math.cos(a1), s1 = Math.sin(a1);
+		double c2 = Math.cos(a2), s2 = Math.sin(a2);
+		double c3 = Math.cos(a3), s3 = Math.sin(a3);
+
+		r.m00 = (float)(c3 * c1 - c2 * s1 * s3);
+		r.m01 = (float)(-s3 * c1 - c2 * s1 * c3);
+		r.m02 = (float)(s2 * s1);
+		r.m03 = 0;
+		r.m10 = (float)(c3 * s1 + c2 * c1 * s3);
+		r.m11 = (float)(-s3 * s1 + c2 * c1 * c3);
+		r.m12 = (float)(-s2 * c1);
+		r.m13 = 0;
+		r.m20 = (float)(s2 * s3);
+		r.m21 = (float)(s2 * c3);
+		r.m22 = (float)(c2);
+		r.m23 = 0;
+
+		Point3f t = new Point3f(c);
+		r.transform(c, t);
+		r.m03 = c.x - t.x;
+		r.m13 = c.y - t.y;
+		r.m23 = c.z - t.z;
+
+		r.m30 = r.m31 = r.m32 = 0;
+		r.m33 = 1;
+
+		return r;
+	}
+
+	double msePrev = -1;
 
 	public void registerTimepoint(int tp, int nLayers) throws IOException {
 		String basename = String.format("tp%04d", tp);
@@ -147,18 +186,120 @@ public class Register_ implements PlugIn {
 
 			Matrix4f mat = new Matrix4f();
 			mat.setIdentity();
-			ICPRegistration.register(tgtPts, srcPts, mat, smp.center);
+			boolean useICP3D = true;
+			boolean useICP9D = false;
+			if(useICP3D) {
+				double mse = ICPRegistration.register(tgtPts, srcPts, mat, smp.center);
+
+				System.out.println("msePrev = " + msePrev + " mse = " + mse);
+				double deg = 0;
+				double bestMSE = mse;
+				Matrix4f bestMat = mat;
+//				while(msePrev > 0 && bestMSE > 2 * msePrev && deg < 40) {
+//					System.out.println("MSE too bad, try different orientations");
+//					// mse got drastically worse, try some other orientations
+//
+//					deg += 3;
+//					double rad = Math.PI * deg / 180;
+//					for(int k = -1; k <= 1; k++) {
+//						for(int l = -1; l <= 1; l++) {
+//							for(int m = -1; m <= 1; m++) {
+//								Matrix4f mtmp = rotateEulerAt(k * rad, l * rad, m * rad, smp.center);
+//								for(int i = 0; i < srcPts.size(); i++)
+//									srcPts.get(i).set(nextTgtPts.get(i));
+//								mse = ICPRegistration.register(tgtPts, srcPts, mtmp, smp.center);
+//								if(mse < bestMSE) {
+//									bestMSE = mse;
+//									bestMat = mtmp;
+//								}
+//							}
+//						}
+//					}
+//				}
+				deg = 10;
+				double rad = Math.PI * deg / 180;
+				for(int k = -1; k <= 1; k++) {
+					for(int l = -1; l <= 1; l++) {
+						for(int m = -1; m <= 1; m++) {
+							Matrix4f mtmp = rotateEulerAt(k * rad, l * rad, m * rad, smp.center);
+							for(int i = 0; i < srcPts.size(); i++)
+								srcPts.get(i).set(nextTgtPts.get(i));
+							mse = ICPRegistration.register(tgtPts, srcPts, mtmp, smp.center);
+							if(mse < bestMSE) {
+								bestMSE = mse;
+								bestMat = mtmp;
+							}
+						}
+					}
+				}
+				mat = bestMat;
+				mse = bestMSE;
+				System.out.println("mat = " + mat);
+				msePrev = mse;
+				System.out.println("msePrev set to " + mse);
+			} else if(useICP9D) {
+				ArrayList<NodeND> params1 = GeometricHash.hash(tgtPts, false);
+				ArrayList<NodeND> params2 = GeometricHash.hash(srcPts, false);
+				double mse = ICPRegistrationND.register(params1, params2, mat, smp.center);
+				System.out.println("msePrev = " + msePrev + " mse = " + mse);
+//				double deg = 0;
+//				double bestMSE = mse;
+//				Matrix4f bestMat = mat;
+//				while(bestMSE > 200 && deg < 40) {
+//					System.out.println("MSE too bad, try different orientations");
+//					// mse got drastically worse, try some other orientations
+//
+//					deg += 3;
+//					double rad = Math.PI * deg / 180;
+//					for(int k = -1; k <= 1; k++) {
+//						for(int l = -1; l <= 1; l++) {
+//							for(int m = -1; m <= 1; m++) {
+//								Matrix4f mtmp = rotateEulerAt(k * rad, l * rad, m * rad, smp.center);
+//								for(int i = 0; i < srcPts.size(); i++)
+//									srcPts.get(i).set(nextTgtPts.get(i));
+//								mse = ICPRegistration.registerND(tgtPts, srcPts, mtmp, smp.center);
+//								if(mse < bestMSE) {
+//									bestMSE = mse;
+//									bestMat = mtmp;
+//								}
+//							}
+//						}
+//					}
+//				}
+//				mat = bestMat;
+//				mse = bestMSE;
+//				System.out.println("mat = " + mat);
+//				msePrev = mse;
+//				System.out.println("msePrev set to " + mse);
+			} else {
+				System.out.println("Found " + tgtPts.size() + " and " + srcPts.size() + " maxima");
+				ArrayList<PointMatch> candidates = GeometricHash.establishCorrespondences(tgtPts, srcPts);
+				System.out.println(candidates.size() + " candidates left after geometric hashing");
+				Matrix4f bestRigid = new Ransac(candidates, smp.center).run();
+				if(bestRigid != null)
+					mat.set(bestRigid);
+				else
+					mat.setIdentity();
+			}
 			overall.mul(mat);
+			System.out.println("overall = " + overall);
 			TransformIO.saveTransformation(matFile, overall);
+
 		} else {
+			System.out.println("loading " + matFile.getAbsolutePath());
 			overall = TransformIO.loadTransformation(matFile);
+			System.out.println("done");
+			msePrev = -1;
 		}
 
 		for(int l = 0; l < nLayers; l++) {
 			File outputfile = new File(outputDirectory, String.format("%s_%02d.vertices", basename, l));
 			if(!outputfile.exists()) {
+				System.out.println("applying transformation");
 				maxima[l] = smp.applyTransform(overall, maxima[l]);
+				System.out.println("saving");
 				SphericalMaxProjection.saveShortData(maxima[l], outputfile.getAbsolutePath());
+				System.out.println("done");
 			}
 		}
 
