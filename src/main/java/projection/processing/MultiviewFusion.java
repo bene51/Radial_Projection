@@ -338,15 +338,24 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 		for(int l = 0; l < nLayers; l++) {
 			File out = new File(outputdir, String.format("tp%04d_%02d.vertices", tp, l));
 			float[] res = new float[vertices.length];
+//			for(int v = 0; v < vertices.length; v++) {
+//				float sum = 0;
+//				for(int a = 0; a < angles.length; a++) {
+//					float w = weights[a][v];
+//					float ma = (m[a][l][v] & 0xffff);
+//					sum += w;
+//					res[v] += (w * ma);
+//				}
+//				res[v] = sum == 0 ? 0 : res[v] / sum;
+//			}
 			for(int v = 0; v < vertices.length; v++) {
-				float sum = 0;
+				float max = 0;
 				for(int a = 0; a < angles.length; a++) {
-					float w = weights[a][v];
 					float ma = (m[a][l][v] & 0xffff);
-					sum += w;
-					res[v] += (w * ma);
+					if(ma > max)
+						max = ma;
 				}
-				res[v] = sum == 0 ? 0 : res[v] / sum;
+				res[v] = max;
 			}
 			for(int v = 0; v < res.length; v++)
 				sData[v] = (short)res[v];
