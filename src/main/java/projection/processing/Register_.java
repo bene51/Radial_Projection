@@ -172,12 +172,8 @@ public class Register_ implements PlugIn {
 		File matFile = new File(matrixDirectory, matName);
 		if(!matFile.exists()) {
 			srcPts = getPoints(findMaxima, smp, maxima);
-			if(tgtPts == null) {
-				short[][] pmaxima = new short[nLayers][];
-				for(int l = 0; l < nLayers; l++)
-					pmaxima[l] = SphericalMaxProjection.loadShortData(new File(dataDirectory, String.format("tp%04d_%02d", tp-1, l) + ".vertices").getAbsolutePath(), nVertices);
+			if(tgtPts == null)
 				tgtPts = getPoints(findMaxima, smp, maxima);
-			}
 
 			// make a deep copy of src points, to be used as target points for the next iteration
 			nextTgtPts = new ArrayList<Point3f>(srcPts.size());
