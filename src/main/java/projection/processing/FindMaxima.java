@@ -203,7 +203,7 @@ public class FindMaxima {
 			if (maxPossible) {
 				int offset = pList[nearestI];
 				types[offset] |= MAX_POINT;
-				maxima.add(vertices[offset]);
+				maxima.add(new Point3f(vertices[offset]));
 				if(isVertexMax != null)
 					isVertexMax[offset] = true;
 			}
