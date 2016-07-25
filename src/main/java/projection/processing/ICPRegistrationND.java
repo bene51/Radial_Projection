@@ -8,43 +8,37 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Point3f;
 
 import math3d.JacobiDouble;
+import projection.processing.GeometricHash.NodeND;
 import projection.util.PointMatch;
 import fiji.util.KDTree;
 import fiji.util.NearestNeighborSearch;
 import fiji.util.node.Leaf;
 
-public class ICPRegistration {
+public class ICPRegistrationND {
 
-	public static float register(ArrayList<Point3f> tgtPts, ArrayList<Point3f> srcPts, Matrix4f mat, Point3f cor) {
+	public static float register(ArrayList<NodeND> tgtPts, ArrayList<NodeND> srcPts, Matrix4f mat, Point3f cor) {
 		return register(tgtPts, srcPts, mat, cor, 0.5f);
 	}
 
-	public static float register(ArrayList<Point3f> tgtPts, ArrayList<Point3f> srcPts, Matrix4f mat, Point3f cor, float overlapRatio) {
-		Point3f[] sSphere = new Point3f[srcPts.size()];
-		srcPts.toArray(sSphere);
-		Point3f[] tSphere = new Point3f[tgtPts.size()];
-		tgtPts.toArray(tSphere);
-		return icp(sSphere, tSphere, mat, cor, 500, overlapRatio);
+	public static float register(ArrayList<NodeND> tgtPts, ArrayList<NodeND> srcPts, Matrix4f mat, Point3f cor, float overlapRatio) {
+		return icp(tgtPts, srcPts, mat, cor, 100, overlapRatio);
 	}
 
-	private static float icp(Point3f[] m,
-				Point3f[] t,
+	private static float icp(
+				ArrayList<NodeND> t,
+				ArrayList<NodeND> m,
 				Matrix4f result,
 				Point3f cor,
 				int maxIter,
 				float ratioToUse) {
-		int ms = m.length;
+		int ms = m.size();
 
 		// use 'result' as initial transformation
 		apply(m, result);
 		float mseOld = Float.MAX_VALUE;
 
-		ArrayList<Node3D> nodes = new ArrayList<Node3D>(t.length);
-		for(Point3f p : t)
-			nodes.add(new Node3D(p));
-		KDTree<Node3D> kd = new KDTree<Node3D>(nodes);
-		NearestNeighborSearch<Node3D> nn = new NearestNeighborSearch<Node3D>(kd);
-		// PointOctree ttree = new PointOctree(Arrays.asList(t));
+		KDTree<NodeND> kd = new KDTree<NodeND>(t);
+		NearestNeighborSearch<NodeND> nn = new NearestNeighborSearch<NodeND>(kd);
 
 		final ArrayList<PointMatch> correspondences =
 				new ArrayList<PointMatch>(ms);
@@ -55,9 +49,9 @@ public class ICPRegistration {
 			// for each point in m for a nearest neighbor point
 			// in t
 			correspondences.clear();
-			for(Point3f mp : m) {
-				Point3f nearest = nearestNeighbor(mp, nn);
-				PointMatch pm = new PointMatch(mp, nearest);
+			for(NodeND mp : m) {
+				Point3f nearest = nearestNeighbor(mp, nn).point;
+				PointMatch pm = new PointMatch(mp.point, nearest);
 				if(pm.distance2 < 900)
 					correspondences.add(pm);
 			}
@@ -88,19 +82,17 @@ public class ICPRegistration {
 		return mseOld;
 	}
 
-	private static final void apply(Point3f[] list, Matrix4f m) {
-		for(Point3f p : list)
-			m.transform(p);
+	private static final void apply(ArrayList<NodeND> list, Matrix4f m) {
+		for(NodeND p : list)
+			m.transform(p.point);
 	}
 
-	private static final Point3f nearestNeighbor(
-			Point3f p, NearestNeighborSearch<Node3D> nn) {
-		return nn.findNearestNeighbor(new Node3D(p)).p;
+	private static final NodeND nearestNeighbor(
+			NodeND p, NearestNeighborSearch<NodeND> nn) {
+		return nn.findNearestNeighbor(new NodeND(p));
 	}
 
 	private static final float calculateMSE(ArrayList<PointMatch> pm) {
-		if(pm.size() == 0)
-			return Float.POSITIVE_INFINITY;
 		double sum = 0.0;
 		for(PointMatch p : pm)
 			sum += p.p1.distanceSquared(p.p2);

@@ -321,6 +321,22 @@ public class GeneralProjProjection {
 		return out;
 	}
 
+	// p in deg
+	public void transform(double[] p) {
+		Point2D.Double din = new Point2D.Double(p[0], p[1]);
+		Point2D.Double dout = new Point2D.Double();
+		try {
+			projection.transform(din, dout);
+		} catch(NullPointerException e) {
+			System.out.println("din = " + din);
+			System.out.println("dout = " + dout);
+			System.out.println("projection = " + projection);
+			throw e;
+		}
+		p[0] = dout.x - minx;
+		p[1] = maxy - dout.y;
+	}
+
 	public void drawInto(ImageProcessor ip, int value, int linewidth, GeneralPath path) {
 		ip.setValue(value);
 		ip.setLineWidth(linewidth);

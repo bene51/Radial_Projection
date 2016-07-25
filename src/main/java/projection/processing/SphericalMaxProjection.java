@@ -364,7 +364,7 @@ public class SphericalMaxProjection {
 		int[] nNeighbors = new int[maxima.length];
 		float[] newMaxima = new float[maxima.length];
 		for(int i = 0; i < maxima.length; i++)
-			newMaxima[i] = maxima[i];
+			newMaxima[i] = maxima[i] & 0xffff;
 
 		int[] faces = sphere.getFaces();
 		for(int i = 0; i < sphere.nFaces; i += 3) {
@@ -383,6 +383,39 @@ public class SphericalMaxProjection {
 		}
 		for(int i = 0; i < newMaxima.length; i++)
 			maxima[i] = (short)(newMaxima[i] / (nNeighbors[i] + 1));
+	}
+
+	public void smooth(short[] maxima, int nPasses) {
+		float[] orgMaxima = new float[maxima.length];
+		float[] newMaxima = new float[maxima.length];
+		for(int i = 0; i < maxima.length; i++)
+			orgMaxima[i] = newMaxima[i] = maxima[i] & 0xffff;
+
+		int[] faces = sphere.getFaces();
+
+		for(int k = 0; k < nPasses; k++) {
+			int[] nNeighbors = new int[maxima.length];
+			// newMaxima is anyway initialized with orgMaxima
+			for(int i = 0; i < sphere.nFaces; i += 3) {
+				int f1 = faces[i];
+				int f2 = faces[i + 1];
+				int f3 = faces[i + 2];
+				nNeighbors[f1] += 2;
+				newMaxima[f1] += orgMaxima[f2];
+				newMaxima[f1] += orgMaxima[f3];
+				nNeighbors[f2] += 2;
+				newMaxima[f2] += orgMaxima[f1];
+				newMaxima[f2] += orgMaxima[f3];
+				nNeighbors[f3] += 2;
+				newMaxima[f3] += orgMaxima[f1];
+				newMaxima[f3] += orgMaxima[f2];
+			}
+			for(int i = 0; i < orgMaxima.length; i++) {
+				newMaxima[i] = orgMaxima[i] = newMaxima[i] / (nNeighbors[i] + 1);
+			}
+		}
+		for(int i = 0; i < orgMaxima.length; i++)
+			maxima[i] = (short)orgMaxima[i];
 	}
 
 	/**
@@ -594,19 +627,23 @@ public class SphericalMaxProjection {
 		float d1 = p.distance(vertices[i1]);
 		float d2 = p.distance(vertices[i2]);
 
-		if(d0 == 0) return maxima[i0];
-		if(d1 == 0) return maxima[i1];
-		if(d2 == 0) return maxima[i2];
+		float v0 = maxima[i0] & 0xffff;
+		float v1 = maxima[i1] & 0xffff;
+		float v2 = maxima[i2] & 0xffff;
+
+		if(d0 == 0) return v0;
+		if(d1 == 0) return v1;
+		if(d2 == 0) return v2;
 
 		float sum = 1 / d0 + 1 / d1 + 1 / d2;
 
 		d0 = 1 / d0 / sum;
 		d1 = 1 / d1 / sum;
 		d2 = 1 / d2 / sum;
-		float v0 = d0 * maxima[i0];
-		float v1 = d1 * maxima[i1];
-		float v2 = d2 * maxima[i2];
-		float ret = v0 + v1 + v2;
+		float vw0 = d0 * v0;
+		float vw1 = d1 * v1;
+		float vw2 = d2 * v2;
+		float ret = vw0 + vw1 + vw2;
 		return ret;
 	}
 

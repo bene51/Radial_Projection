@@ -13,21 +13,29 @@ public final class PointMatch implements Comparable<PointMatch> {
 		this.distance2 = p1.distanceSquared(p2);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		PointMatch pm = (PointMatch)o;
 		return pm.p1.equals(p1) && pm.p2.equals(p2);
 	}
 
+	@Override
 	public int hashCode() {
 		return p1.hashCode() * p2.hashCode();
 	}
 
+	@Override
 	public int compareTo(PointMatch o) {
 		if(this.distance2 < o.distance2)
 			return -1;
 		if(this.distance2 > o.distance2)
 			return +1;
 		return 0;
+	}
+
+	@Override
+	public String toString() {
+		return p1 + " <--> " + p2;
 	}
 }
 

@@ -59,10 +59,10 @@ public class FindMaxima {
 		return neigh;
 	}
 
-	public ArrayList<Point3f> findMaxima(short[] values, double tolerance) {
+	public ArrayList<Point3f> findMaxima(short[] values, boolean[] isVertexMax, double tolerance) {
 		byte[] types = new byte[values.length];
 		long[] maxPoints = getSortedMaxPoints(values, types);
-		return analyzeAndMarkMaxima(values, types, maxPoints, tolerance);
+		return analyzeAndMarkMaxima(values, types, maxPoints, isVertexMax, tolerance);
 	}
 
 
@@ -102,6 +102,7 @@ public class FindMaxima {
 			short[] values,
 			byte[] types,
 			long[] maxPoints,
+			boolean[] isVertexMax,
 			double tolerance) {
 
 		int nMax = maxPoints.length;
@@ -202,7 +203,9 @@ public class FindMaxima {
 			if (maxPossible) {
 				int offset = pList[nearestI];
 				types[offset] |= MAX_POINT;
-				maxima.add(vertices[offset]);
+				maxima.add(new Point3f(vertices[offset]));
+				if(isVertexMax != null)
+					isVertexMax[offset] = true;
 			}
 		} // for all maxima iMax
 		return maxima;
