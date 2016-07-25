@@ -15,21 +15,35 @@ public class MultiviewRadialMaxProjection {
 
 	protected final String outputdir;
 	protected final Configuration conf;
-	protected final int nChannels;
+	// protected final int nChannels;
+	protected final int[] channels;
 
 	protected SphericalMaxProjection[] smp;
 	protected MaximumProjector[] projectors;
 
+	private static final int[] createIncrementingArray(int n) {
+		int[] ret = new int[n];
+		for(int i = 0; i < n; i++) {
+			ret[i] = i;
+		}
+		return ret;
+	}
 
 	public MultiviewRadialMaxProjection(String outputdir,
 			Configuration conf,
 			int nChannels) {
+		this(outputdir, conf, createIncrementingArray(nChannels));
+	}
+
+	public MultiviewRadialMaxProjection(String outputdir,
+			Configuration conf,
+			int[] channels) {
 		if(!outputdir.endsWith(File.separator))
 			outputdir += File.separator;
 
 		this.conf = conf;
 		this.outputdir = outputdir;
-		this.nChannels = nChannels;
+		this.channels = channels;
 
 		try {
 			// initialize the maximum projections
@@ -51,7 +65,7 @@ public class MultiviewRadialMaxProjection {
 	}
 
 	private void saveVertexIndices() throws IOException {
-		for(int c = 0; c < nChannels; c++) {
+		for(int c : channels) {
 			File dir = new File(outputdir, "channel" + c);
 			for(int a = 0; a < conf.angles.length; a++)
 				projectors[a].saveVertexIndices(new File(dir, getIndicesFileName(conf.angleNames, a)));
@@ -59,8 +73,9 @@ public class MultiviewRadialMaxProjection {
 	}
 
 	private void saveTransformations(Matrix4f[] transformations) throws IOException {
-		for(int c = 0; c < nChannels; c++) {
+		for(int c : channels) {
 			File dir = new File(outputdir, "channel" + c);
+			System.out.println("make dir " + dir.getAbsolutePath());
 			if(!dir.exists())
 				dir.mkdir();
 			for(int aIndex = 0; aIndex < conf.angles.length; aIndex++) {
