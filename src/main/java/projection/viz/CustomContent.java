@@ -1,5 +1,6 @@
 package projection.viz;
 
+import ij.IJ;
 import ij3d.Content;
 import ij3d.ContentInstant;
 
@@ -12,15 +13,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.media.j3d.Canvas3D;
-import javax.media.j3d.GeometryArray;
-import javax.media.j3d.IndexedTriangleArray;
-import javax.media.j3d.Transform3D;
-import javax.media.j3d.TriangleArray;
-import javax.vecmath.Color3f;
-import javax.vecmath.Point2d;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
+import org.scijava.java3d.Canvas3D;
+import org.scijava.java3d.GeometryArray;
+import org.scijava.java3d.IndexedTriangleArray;
+import org.scijava.java3d.Transform3D;
+import org.scijava.java3d.TriangleArray;
+import org.scijava.vecmath.Color3f;
+import org.scijava.vecmath.Point2d;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Point3f;
 
 import projection.processing.SphericalMaxProjection;
 
@@ -147,7 +148,8 @@ public class CustomContent extends Content {
 	}
 
 	public void smooth() {
-		smp.smooth(maxima);
+		int nPasses = (int) IJ.getNumber("Passes", 5);
+		smp.smooth(maxima, nPasses);
 		updateDisplayRange();
 	}
 

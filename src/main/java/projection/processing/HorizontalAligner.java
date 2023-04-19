@@ -1,7 +1,7 @@
 package projection.processing;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
 
 import vib.FastMatrix;
 

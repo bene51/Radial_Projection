@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
 
 import projection.util.TransformIO;
 
@@ -90,10 +90,6 @@ public class MultiviewFusion extends TimelapseProcessor implements PlugIn {
 
 	/**
 	 * Prepare fusion, using a single input folder.
-	 * @param indir
-	 * @param nAngles
-	 * @param angleInc
-	 * @param transformations
 	 * @param saveOutput
 	 * @throws IOException
 	 */

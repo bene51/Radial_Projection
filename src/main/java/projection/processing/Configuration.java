@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 
-import javax.vecmath.Matrix4f;
+import org.scijava.vecmath.Matrix4f;
 
 import projection.util.TransformIO;
 

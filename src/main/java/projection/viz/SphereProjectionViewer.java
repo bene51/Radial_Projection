@@ -22,12 +22,12 @@ import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
 
-import javax.media.j3d.Transform3D;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2f;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3d;
+import org.scijava.java3d.Transform3D;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point2f;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Vector3d;
 
 import projection.processing.SphericalMaxProjection;
 

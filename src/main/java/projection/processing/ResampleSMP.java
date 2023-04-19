@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 public class ResampleSMP extends TimelapseProcessor implements PlugIn {
 

@@ -3,8 +3,8 @@ package projection.processing;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
 
 import projection.util.PointMatch;
 

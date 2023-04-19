@@ -3,9 +3,9 @@ package projection.processing;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Vector3f;
 
 import projection.util.PointMatch;
 import fiji.util.KDTree;

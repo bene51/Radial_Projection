@@ -4,10 +4,10 @@ import ij.gui.Plot;
 
 import java.awt.Color;
 
-import javax.vecmath.AxisAngle4d;
-import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Vector3d;
+import org.scijava.vecmath.AxisAngle4d;
+import org.scijava.vecmath.Matrix3d;
+import org.scijava.vecmath.Matrix4d;
+import org.scijava.vecmath.Vector3d;
 
 public class PolarDecomposition {
 

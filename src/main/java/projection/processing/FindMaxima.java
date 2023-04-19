@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.vecmath.Point2f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point2f;
+import org.scijava.vecmath.Point3f;
 
 public class FindMaxima {
 

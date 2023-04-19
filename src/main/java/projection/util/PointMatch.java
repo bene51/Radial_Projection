@@ -1,6 +1,6 @@
 package projection.util;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 public final class PointMatch implements Comparable<PointMatch> {
 	public final Point3f p1;

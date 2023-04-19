@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import javax.media.j3d.Transform3D;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2f;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3f;
+import org.scijava.java3d.Transform3D;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point2f;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Vector3f;
 
 import projection.util.TransformIO;
 import projection.viz.CustomContent;

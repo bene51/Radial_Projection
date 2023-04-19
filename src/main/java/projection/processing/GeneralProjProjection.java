@@ -15,9 +15,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point2f;
+import org.scijava.vecmath.Point3f;
 
 import com.jhlabs.map.Ellipsoid;
 import com.jhlabs.map.proj.MercatorProjection;

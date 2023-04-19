@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 public class TV_Filter implements PlugIn {
 

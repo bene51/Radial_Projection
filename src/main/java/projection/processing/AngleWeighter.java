@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Point3f;
 
 public class AngleWeighter implements FusionWeight {
 

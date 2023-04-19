@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import javax.vecmath.Point3f;
-import javax.vecmath.Point3i;
-import javax.vecmath.Vector3f;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Point3i;
+import org.scijava.vecmath.Vector3f;
 
 public class MeshToMask {
 

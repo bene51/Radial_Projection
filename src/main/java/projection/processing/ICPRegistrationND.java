@@ -4,8 +4,8 @@ package projection.processing;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
 
 import math3d.JacobiDouble;
 import projection.processing.GeometricHash.NodeND;

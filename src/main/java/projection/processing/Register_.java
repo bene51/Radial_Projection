@@ -6,13 +6,14 @@ import ij.Prefs;
 import ij.plugin.PlugIn;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point3f;
+import org.scijava.vecmath.Matrix4f;
+import org.scijava.vecmath.Point3f;
 
 import projection.processing.GeometricHash.NodeND;
 import projection.util.PointMatch;
@@ -102,7 +103,11 @@ public class Register_ implements PlugIn {
 		smp.saveSphere(new File(outputDirectory, "Sphere.obj").getAbsolutePath());
 
 
-		contributions = SphericalMaxProjection.loadIntData(new File(dataDirectory, "contributions.vertices").getAbsolutePath(), nVertices);
+		try {
+			contributions = SphericalMaxProjection.loadIntData(new File(dataDirectory, "contributions.vertices").getAbsolutePath(), nVertices);
+		} catch(FileNotFoundException e) {
+			IJ.log(e.getMessage());
+		}
 
 		this.findMaxima = new FindMaxima(smp);
 

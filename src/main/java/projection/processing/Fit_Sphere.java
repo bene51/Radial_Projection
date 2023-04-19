@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.vecmath.Point3f;
-import javax.vecmath.Point4f;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Point4f;
 
 import vib.BenesNamedPoint;
 import vib.PointList;

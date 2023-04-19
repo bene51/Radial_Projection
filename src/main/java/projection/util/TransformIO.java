@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.vecmath.Matrix4f;
+import org.scijava.vecmath.Matrix4f;
 
 public class TransformIO {
 
