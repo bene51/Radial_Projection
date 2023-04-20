@@ -13,6 +13,7 @@
 	</parent>
 
 	<artifactId>Radial_Projection</artifactId>
+	<version>0.1</version>
 
 	<name>plugins/Radial_Projection.jar</name>
 	<description></description>
