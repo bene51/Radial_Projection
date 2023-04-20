@@ -61,10 +61,12 @@ public class Map_Projection extends TimelapseProcessor implements PlugIn {
 		"Orthogonal Azimutal",
 		"Fuller"};
 
+	public static String DEFAULT_DATA_DIR = "";
+
 	@Override
 	public void run(String arg) {
 		GenericDialogPlus gd = new GenericDialogPlus("Create 2D Maps");
-		gd.addDirectoryField("Data directory", "");
+		gd.addDirectoryField("Data directory", DEFAULT_DATA_DIR);
 		gd.addNumericField("#Layers", 1, 0);
 		gd.addCheckbox("Create_coastlines", false);
 		gd.addCheckbox("Create_Longitude/Latitude lines", true);
