@@ -151,7 +151,9 @@ public class Fit_Sphere implements PlugInFilter {
 			}
 		});
 		p.add(done);
-		pld.addPanel(p);
+		synchronized(pld.getTreeLock()) {
+			pld.addPanel(p);
+		}
 
 		pld.pack();
 		pld.setVisible(true);
